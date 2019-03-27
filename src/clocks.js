@@ -1,79 +1,35 @@
 import React, { Component } from 'react';
-import { AppRegistry,TouchableHighlight, TextInput, Button, Modal, Text, View } from 'react-native';
+import { AppRegistry, TouchableHighlight, Picker, Image, Item, TextInput, Modal, Text, View } from 'react-native';
+import { Button } from 'react-native-elements';
+import Styles from './styles.js';
 
-const Styles = {
-    mainContainer: {
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: 'pink',
-        justifyContent: "center",
-        alignContent: "center"
-    },
-    toolbar:{
-        flex: 1,
-        flexDirection: 'column',
-        backgroundColor: 'grey',
-        justifyContent: "space-evenly",
-        alignContent: "stretch",
-        alignItems: "center"
-    },
-    toolbarItem:{
-        transform: [{ rotate: '90deg' }],
-        color: 'black',
-        fontSize: 15,
-        fontWeight: 'bold',
-    },
-    mainClockContainer: {
-        flex: 6,
-        flexDirection: 'column',
-        backgroundColor: 'grey',
-        justifyContent: "center",
-        alignItems: "stretch"
-    },
-    whiteClockContainer: {
-        flex: 1,
-        backgroundColor: 'white',
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    whiteClock: {
-        color: 'black',
-        textAlignVertical: 'center',
-        fontSize: 100,
-        transform: [{ rotate: '90deg' }]
-    },
-    blackClockContainer: {
-        flex: 1,
-        backgroundColor: 'black',
-        justifyContent: "center",
-        alignItems: "center"
-    },
-    blackClock: {
-        color: 'white',
-        textAlignVertical: 'center',
-        fontSize: 100,
-        transform: [{ rotate: '90deg' }]
-    },
-}
 class Countdown extends Component {
     constructor(props) {
         super(props);
-        this.state = { minutes: 10, configureModalVisible: false, isBlackRunning:false,isWhiteRunning:false,isStarted:false, blackSeconds: 600,whiteSeconds: 600 };
-        
+        this.state = { inputMinutes: 10, inputSeconds: 0, incrementTime: 0, configureModalVisible: false, isBlackRunning: false, isWhiteRunning: false, isStarted: false, blackSeconds: 600, whiteSeconds: 600 };
+
         this.setConfig = () => {
+            this.state.inputMinutes = parseInt(this.state.inputMinutes, 10);
+            this.state.inputSeconds = parseInt(this.state.inputSeconds, 10);
+            time = this.state.inputMinutes * 60 + this.state.inputSeconds
+            if(!isNaN(this.state.inputMinutes) && !isNaN(this.state.inputSeconds) && !isNaN(this.state.incrementTime)){
             this.setState({
                 configureModalVisible: false,
                 isStarted: false,
                 isBlackRunning: false,
-                isWhiteRunning:false,
-                blackSeconds: this.state.minutes*60,
-                whiteSeconds: this.state.minutes*60
+                isWhiteRunning: false,
+                blackSeconds: time,
+                whiteSeconds: time,
+                incrementTime: this.state.incrementTime
             })
+        }
         };
 
         this.openModal = () => {
             this.setState({
                 configureModalVisible: true,
+                inputMinutes: 0,
+                inputSeconds: 0
             })
         };
 
@@ -84,12 +40,15 @@ class Countdown extends Component {
         }
 
         this.restart = () => {
+            this.state.inputMinutes = parseInt(this.state.inputMinutes, 10);
+            this.state.inputSeconds = parseInt(this.state.inputSeconds, 10);
+            time = this.state.inputMinutes * 60 + this.state.inputSeconds
             this.setState({
                 isStarted: false,
                 isBlackRunning: false,
-                isWhiteRunning:false,
-                blackSeconds: this.state.minutes*60,
-                whiteSeconds: this.state.minutes*60
+                isWhiteRunning: false,
+                blackSeconds: time,
+                whiteSeconds: time
             })
         };
 
@@ -98,38 +57,41 @@ class Countdown extends Component {
                 isStarted: false
             })
         }
-        
+
         this.change = () => {
-            if(!this.state.isStarted && this.state.isWhiteRunning){
+            this.state.incrementTime = parseInt(this.state.incrementTime, 10)
+            if (!this.state.isStarted && this.state.isWhiteRunning) {
                 this.setState({
                     isStarted: true,
                     isBlackRunning: false,
-                    isWhiteRunning:true
+                    isWhiteRunning: true,
                 })
             }
-            else if(!this.state.isStarted && !this.state.isWhiteRunning) {
+            else if (!this.state.isStarted && !this.state.isWhiteRunning) {
                 this.setState({
                     isStarted: true,
                     isBlackRunning: true,
-                    isWhiteRunning:false
+                    isWhiteRunning: false
                 })
             }
-            else if(this.state.isBlackRunning && this.state.blackSeconds != 0) {
+            else if (this.state.isBlackRunning && this.state.blackSeconds != 0) {
                 this.setState({
                     isBlackRunning: false,
-                    isWhiteRunning:true
+                    blackSeconds: this.state.blackSeconds + this.state.incrementTime,
+                    isWhiteRunning: true
                 })
             }
-            else if (this.state.isWhiteRunning && this.state.whiteSeconds != 0){
+            else if (this.state.isWhiteRunning && this.state.whiteSeconds != 0) {
                 this.setState({
                     isBlackRunning: true,
-                    isWhiteRunning:false
-                }) 
+                    isWhiteRunning: false,
+                    whiteSeconds: this.state.whiteSeconds + this.state.incrementTime
+                })
             }
             else {
                 this.setState({
                     isBlackRunning: false,
-                    isWhiteRunning:false
+                    isWhiteRunning: false
                 })
             }
         }
@@ -147,64 +109,104 @@ class Countdown extends Component {
             ))
         ), 100);
     }
-    render(){
+    render() {
         this.whiteSeconds = this.state.whiteSeconds;
         this.blackSeconds = this.state.blackSeconds;
-        if(this.state.configureModalVisible) {
+        if (this.state.configureModalVisible) {
             return (
                 <View style={Styles.mainContainer}>
-                <Modal onRequestClose={() => { this.closeModal() }}>
-                    <Text> Enter time for chess clock: </Text>
-                    <TextInput style={{height: 40}}
-                    placeholder="Minutes"
-                    keyboardType="numeric"
-                    onChangeText={(minutes) => this.setState({minutes})}/>
-                    <Button onPress={()=> {this.setConfig()}} title='Set time'> </Button>
-                </Modal>
+                    <Modal onRequestClose={() => { this.closeModal() }}>
+                        <View style={Styles.configureModal}>
+                            <Image style={Styles.chessClockImage} source={require('./../assets/chess-clock-white.png')} />
+                            <Text style={Styles.modalText}> Enter time for chess clock: </Text>
+                            <View style={Styles.modalInputView}>
+
+                                <TextInput style={Styles.modalInputText}
+                                    placeholder="00"
+                                    keyboardType="numeric"
+                                    maxLength={2}
+                                    onChangeText={(inputMinutes) => this.setState({ inputMinutes })} />
+
+                                <Text style={Styles.modalInputText}> : </Text>
+
+                                <TextInput style={Styles.modalInputText}
+                                    placeholder="00"
+                                    keyboardType="numeric"
+                                    maxLength={2}
+                                    onChangeText={(inputSeconds) => this.setState({ inputSeconds })} />
+
+                            </View>
+                            <Text style={Styles.modalText}>Increment time:</Text>
+                            <View stle={Styles.modalInputView}>
+                                <TextInput style={Styles.modalInputText}
+                                    placeholder='0 seconds'
+                                    keyboardType='numeric'
+                                    maxLength={3}
+                                    onChangeText={(incrementTime) => this.setState({ incrementTime })} />
+                            </View>
+                            <Button type='outline' color="white" onPress={() => { this.setConfig() }} title='Set time'> </Button>
+                        </View>
+                    </Modal>
                 </View>
             )
         }
-        if(!this.state.isStarted) {
+        if (!this.state.isStarted) {
+            this.whiteTime = this.formatTimeToHumanFriendly(this.state.whiteSeconds);
+            this.blackTime = this.formatTimeToHumanFriendly(this.state.blackSeconds);
+
+        }
+        else if (this.state.isStarted && this.state.isWhiteRunning && this.state.whiteSeconds != 0) {
+            this.state.whiteSeconds = this.state.whiteSeconds - 0.1;
             this.whiteTime = this.formatTimeToHumanFriendly(this.state.whiteSeconds);
             this.blackTime = this.formatTimeToHumanFriendly(this.state.blackSeconds);
         }
-        else if(this.state.isStarted && this.state.isWhiteRunning && this.state.whiteSeconds != 0) {
-            this.state.whiteSeconds = this.state.whiteSeconds - 1;
-            this.whiteTime = this.formatTimeToHumanFriendly(this.state.whiteSeconds);
-            this.blackTime = this.formatTimeToHumanFriendly(this.state.blackSeconds);
-        }
-        else if(this.state.isStarted && this.state.isStarted && this.state.isBlackRunning && this.state.blackSeconds != 0) {
-            this.state.blackSeconds = this.state.blackSeconds - 1;
+        else if (this.state.isStarted && this.state.isStarted && this.state.isBlackRunning && this.state.blackSeconds != 0) {
+            this.state.blackSeconds = this.state.blackSeconds - 0.1;
             this.whiteTime = this.formatTimeToHumanFriendly(this.state.whiteSeconds);
             this.blackTime = this.formatTimeToHumanFriendly(this.state.blackSeconds);
         }
         return (
-        <View style={Styles.mainContainer}>
-        <View style={Styles.toolbar}>
-        <Text style={Styles.toolbarItem} onPress={() => { this.restart() }}>RESTART</Text>
-        <Text style={Styles.toolbarItem} onPress={() => { this.pause() }}>PAUSE</Text>
-        <Text style={Styles.toolbarItem} onPress={() => { this.openModal() }}>CONFIGURE</Text>
-        </View>
-            <View style={Styles.mainClockContainer} >
-                <View style={Styles.whiteClockContainer}>
-                    <Text onPress={() => { this.change() }} style={Styles.whiteClock}>  {this.whiteTime}</Text>
-                </View>
-                <View style={Styles.blackClockContainer}>
-                    <Text onPress={() => { this.change() }} style={Styles.blackClock}>
-                   {this.blackTime}
-                    </Text>
-                </View>
-            </View>
+            <View style={Styles.mainContainer}>
+                <View style={Styles.toolbar}>
+                    <TouchableHighlight activeOpacity={1} onPress={() => { this.restart() }}>
+                        <Image style={Styles.toolbarImage} source={require('./../assets/restart.png')}>
+                        </Image>
+                    </TouchableHighlight>
 
-        </View>
+                    <TouchableHighlight activeOpacity={1} onPress={() => { this.pause() }}>
+                        <Image style={Styles.toolbarImage} source={require('./../assets/pause.png')}>
+                        </Image>
+                    </TouchableHighlight>
+
+                    <TouchableHighlight activeOpacity={1} onPress={() => { this.openModal() }}>
+                        <Image style={Styles.toolbarImage} source={require('./../assets/configure.png')}>
+                        </Image>
+                    </TouchableHighlight>
+
+                </View>
+                <TouchableHighlight activeOpacity={1} onPress={() => { this.change() }}>
+                    <View style={Styles.mainClockContainer} >
+                        <View style={Styles.whiteClockContainer}>
+                            <Text onPress={() => { this.change() }} style={Styles.whiteClock}>  {this.whiteTime}</Text>
+                        </View>
+                        <View style={Styles.blackClockContainer}>
+                            <Text onPress={() => { this.change() }} style={Styles.blackClock}>
+                                {this.blackTime}
+                            </Text>
+                        </View>
+                    </View>
+                </TouchableHighlight>
+
+
+            </View>
         )
-       
+
     }
 }
 export default class BlackClock extends Component {
     render() {
         return (
-        <Countdown/>
+            <Countdown />
         );
     }
 
