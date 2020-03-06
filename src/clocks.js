@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, TouchableHighlight, Picker, Image, Item, TextInput, Modal, Text, View } from 'react-native';
-import { Button } from 'react-native-elements';
+import { AppRegistry, TouchableHighlight, Picker, Image, Item, TextInput, Modal, Text, View, Button } from 'react-native';
 import Styles from './styles.js';
 
 class Countdown extends Component {
@@ -74,14 +73,14 @@ class Countdown extends Component {
                     isWhiteRunning: false
                 })
             }
-            else if (this.state.isBlackRunning && this.state.blackSeconds != 0) {
+            else if (this.state.isBlackRunning && this.state.blackSeconds > 0) {
                 this.setState({
                     isBlackRunning: false,
                     blackSeconds: this.state.blackSeconds + this.state.incrementTime,
                     isWhiteRunning: true
                 })
             }
-            else if (this.state.isWhiteRunning && this.state.whiteSeconds != 0) {
+            else if (this.state.isWhiteRunning && this.state.whiteSeconds > 0) {
                 this.setState({
                     isBlackRunning: true,
                     isWhiteRunning: false,
@@ -144,7 +143,7 @@ class Countdown extends Component {
                                     maxLength={3}
                                     onChangeText={(incrementTime) => this.setState({ incrementTime })} />
                             </View>
-                            <Button type='outline' color="white" onPress={() => { this.setConfig() }} title='Set time'> </Button>
+                            <Button type='outline' color="grey" onPress={() => { this.setConfig() }} title='Set time'> </Button>
                         </View>
                     </Modal>
                 </View>
@@ -155,12 +154,12 @@ class Countdown extends Component {
             this.blackTime = this.formatTimeToHumanFriendly(this.state.blackSeconds);
 
         }
-        else if (this.state.isStarted && this.state.isWhiteRunning && this.state.whiteSeconds != 0) {
+        else if (this.state.isStarted && this.state.isWhiteRunning && this.state.whiteSeconds > 0.1) {
             this.state.whiteSeconds = this.state.whiteSeconds - 0.1;
             this.whiteTime = this.formatTimeToHumanFriendly(this.state.whiteSeconds);
             this.blackTime = this.formatTimeToHumanFriendly(this.state.blackSeconds);
         }
-        else if (this.state.isStarted && this.state.isStarted && this.state.isBlackRunning && this.state.blackSeconds != 0) {
+        else if (this.state.isStarted && this.state.isStarted && this.state.isBlackRunning && this.state.blackSeconds > 0.1) {
             this.state.blackSeconds = this.state.blackSeconds - 0.1;
             this.whiteTime = this.formatTimeToHumanFriendly(this.state.whiteSeconds);
             this.blackTime = this.formatTimeToHumanFriendly(this.state.blackSeconds);
